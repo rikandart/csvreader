@@ -1,7 +1,6 @@
 // csv_parser.cpp: определяет точку входа для консольного приложения.
 //
 
-#include "stdafx.h"
 #include <iostream>
 #include <fstream>
 #include <string>

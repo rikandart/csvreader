@@ -1,7 +1,6 @@
-// csv_parser.cpp: определяет точку входа для консольного приложения.
+// csv_parser.cpp: РѕРїСЂРµРґРµР»СЏРµС‚ С‚РѕС‡РєСѓ РІС…РѕРґР° РґР»СЏ РєРѕРЅСЃРѕР»СЊРЅРѕРіРѕ РїСЂРёР»РѕР¶РµРЅРёСЏ.
 //
 
-#include "stdafx.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -15,16 +14,16 @@
 
 using namespace std;
 
-vector<vector<string>> table;// вектор таблицы
-// карта, запоминающая индексы выражений для того, чтобы не перебирать всю таблицу
-// т.к. таблица может быть большой, этот вектор ускорит поиск
-// номер строки -> столбец
+vector<vector<string>> table;// РІРµРєС‚РѕСЂ С‚Р°Р±Р»РёС†С‹
+// РєР°СЂС‚Р°, Р·Р°РїРѕРјРёРЅР°СЋС‰Р°СЏ РёРЅРґРµРєСЃС‹ РІС‹СЂР°Р¶РµРЅРёР№ РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РЅРµ РїРµСЂРµР±РёСЂР°С‚СЊ РІСЃСЋ С‚Р°Р±Р»РёС†Сѓ
+// С‚.Рє. С‚Р°Р±Р»РёС†Р° РјРѕР¶РµС‚ Р±С‹С‚СЊ Р±РѕР»СЊС€РѕР№, СЌС‚РѕС‚ РІРµРєС‚РѕСЂ СѓСЃРєРѕСЂРёС‚ РїРѕРёСЃРє
+// РЅРѕРјРµСЂ СЃС‚СЂРѕРєРё -> СЃС‚РѕР»Р±РµС†
 map<int, int> equals_indexes;
-map<string, int> columns;// карта названия колонок
-// ряд -> индекс в массиве
-map<string, int> rows;// карта рядов
+map<string, int> columns;// РєР°СЂС‚Р° РЅР°Р·РІР°РЅРёСЏ РєРѕР»РѕРЅРѕРє
+// СЂСЏРґ -> РёРЅРґРµРєСЃ РІ РјР°СЃСЃРёРІРµ
+map<string, int> rows;// РєР°СЂС‚Р° СЂСЏРґРѕРІ
 
-// массив операторов
+// РјР°СЃСЃРёРІ РѕРїРµСЂР°С‚РѕСЂРѕРІ
 const char opers_array[] = { '+', '-', '*', '/' };
 
 int operation(int arg1, int arg2, char oper){
@@ -57,18 +56,18 @@ int parse_arg(string* arg){
 	return stoi(table[i_row][i_col]);
 }
 
-// парсер выражений
+// РїР°СЂСЃРµСЂ РІС‹СЂР°Р¶РµРЅРёР№
 string parse_equal(string str, const unsigned int row, const unsigned int column){
-	str = str.substr(1, str.length());// убираем "="
+	str = str.substr(1, str.length());// СѓР±РёСЂР°РµРј "="
 	int cell_1 = 0, cell_2 = 0;
 	char op;
 	for (char oper : opers_array){
 		int oper_pos = 0;
 		if ((oper_pos = str.find_first_of(oper, 0))){
-			string arg1 = str.substr(0, oper_pos);// получаем первый аргумент выражения
-			cell_1 = parse_arg(&arg1);// получаем значение из ячейки
-			string arg2 = str.substr(oper_pos + 1, str.length());// получаем второй аргумент выражения
-			cell_2 = parse_arg(&arg2);// получаем значение из ячейки
+			string arg1 = str.substr(0, oper_pos);// РїРѕР»СѓС‡Р°РµРј РїРµСЂРІС‹Р№ Р°СЂРіСѓРјРµРЅС‚ РІС‹СЂР°Р¶РµРЅРёСЏ
+			cell_1 = parse_arg(&arg1);// РїРѕР»СѓС‡Р°РµРј Р·РЅР°С‡РµРЅРёРµ РёР· СЏС‡РµР№РєРё
+			string arg2 = str.substr(oper_pos + 1, str.length());// РїРѕР»СѓС‡Р°РµРј РІС‚РѕСЂРѕР№ Р°СЂРіСѓРјРµРЅС‚ РІС‹СЂР°Р¶РµРЅРёСЏ
+			cell_2 = parse_arg(&arg2);// РїРѕР»СѓС‡Р°РµРј Р·РЅР°С‡РµРЅРёРµ РёР· СЏС‡РµР№РєРё
 			op = oper;
 		}
 		break;
@@ -76,7 +75,7 @@ string parse_equal(string str, const unsigned int row, const unsigned int column
 	return to_string(operation(cell_1, cell_2, op));
 }
 
-// перебор ячеек
+// РїРµСЂРµР±РѕСЂ СЏС‡РµРµРє
 void watch_table() {
 	for (map<int, int>::iterator it = equals_indexes.begin(); it != equals_indexes.end(); it++){
 		unsigned int row = it->first;
@@ -85,7 +84,7 @@ void watch_table() {
 	}
 }
 
-// печать таблицы в консоль
+// РїРµС‡Р°С‚СЊ С‚Р°Р±Р»РёС†С‹ РІ РєРѕРЅСЃРѕР»СЊ
 void print_table() {
 
 	for (map<string, int>::iterator it = columns.begin(); it != columns.end(); it++){
@@ -129,33 +128,33 @@ int main(int argc, char* argv[]){
 		stringstream s(input);
 		bool column_read = true;
 		int row_i = 0;
-		// заполнение внутренней таблицы из csv файла
+		// Р·Р°РїРѕР»РЅРµРЅРёРµ РІРЅСѓС‚СЂРµРЅРЅРµР№ С‚Р°Р±Р»РёС†С‹ РёР· csv С„Р°Р№Р»Р°
 		while (getline(s, row, '\n')){
 			stringstream ss_row(row);
-			// считываем названия колонок, т.е. первую строку
-			// таким образом в ассоциативном массиве название колонки будет соответствовать порядковому номеру в ячейке таблицы 
+			// СЃС‡РёС‚С‹РІР°РµРј РЅР°Р·РІР°РЅРёСЏ РєРѕР»РѕРЅРѕРє, С‚.Рµ. РїРµСЂРІСѓСЋ СЃС‚СЂРѕРєСѓ
+			// С‚Р°РєРёРј РѕР±СЂР°Р·РѕРј РІ Р°СЃСЃРѕС†РёР°С‚РёРІРЅРѕРј РјР°СЃСЃРёРІРµ РЅР°Р·РІР°РЅРёРµ РєРѕР»РѕРЅРєРё Р±СѓРґРµС‚ СЃРѕРѕС‚РІРµС‚СЃС‚РІРѕРІР°С‚СЊ РїРѕСЂСЏРґРєРѕРІРѕРјСѓ РЅРѕРјРµСЂСѓ РІ СЏС‡РµР№РєРµ С‚Р°Р±Р»РёС†С‹ 
 			if (column_read){
-				int column_i = 0; // считываем номер колонки (столбца) в карту колонок
+				int column_i = 0; // СЃС‡РёС‚С‹РІР°РµРј РЅРѕРјРµСЂ РєРѕР»РѕРЅРєРё (СЃС‚РѕР»Р±С†Р°) РІ РєР°СЂС‚Сѓ РєРѕР»РѕРЅРѕРє
 				while (getline(ss_row, cell, ',')){
 					columns.insert(pair<string, int>(cell, column_i++));
 				}
 				column_read = false;
 			}
-			// тут заполняется сама таблица
+			// С‚СѓС‚ Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ СЃР°РјР° С‚Р°Р±Р»РёС†Р°
 			else{
 				vector<string> row_vec;
 				table.push_back(row_vec);
-				int i = table.size() - 1;// номер строки
+				int i = table.size() - 1;// РЅРѕРјРµСЂ СЃС‚СЂРѕРєРё
 				bool row_read = true;
 				while (getline(ss_row, cell, ',')){
-					// считываем номер ряда в карту рядов
+					// СЃС‡РёС‚С‹РІР°РµРј РЅРѕРјРµСЂ СЂСЏРґР° РІ РєР°СЂС‚Сѓ СЂСЏРґРѕРІ
 					if (row_read){
 						rows.insert(pair<string, int>(cell, row_i++));
 						row_read = false;
 					}
 
 					table[i].push_back(cell);
-					// если выражение -> запоминаем строку и столбец
+					// РµСЃР»Рё РІС‹СЂР°Р¶РµРЅРёРµ -> Р·Р°РїРѕРјРёРЅР°РµРј СЃС‚СЂРѕРєСѓ Рё СЃС‚РѕР»Р±РµС†
 					if (cell.at(0) == '=')
 						equals_indexes.insert(pair<int, int>(i, table[i].size() - 1));
 				}

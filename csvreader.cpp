@@ -1,6 +1,7 @@
 // csv_parser.cpp: определяет точку входа для консольного приложения.
 //
 
+#include "stdafx.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -9,8 +10,8 @@
 #include <vector>
 #include <map>
 
-//#define _DEBUG_USE
-#define _CONSOLE_USE
+#define _DEBUG_USE
+//#define _CONSOLE_USE
 
 using namespace std;
 
@@ -18,7 +19,7 @@ vector<vector<string>> table;// вектор таблицы
 // карта, запоминающая индексы выражений для того, чтобы не перебирать всю таблицу
 // т.к. таблица может быть большой, этот вектор ускорит поиск
 // номер строки -> столбец
-map<int, int> equals_indexes;
+multimap<int, int> equals_indexes;
 map<string, int> columns;// карта названия колонок
 // ряд -> индекс в массиве
 map<string, int> rows;// карта рядов
@@ -63,14 +64,14 @@ string parse_equal(string str, const unsigned int row, const unsigned int column
 	char op;
 	for (char oper : opers_array){
 		int oper_pos = 0;
-		if ((oper_pos = str.find_first_of(oper, 0))){
+		if ((oper_pos = str.find_first_of(oper, 0)) >= 0){
 			string arg1 = str.substr(0, oper_pos);// получаем первый аргумент выражения
 			cell_1 = parse_arg(&arg1);// получаем значение из ячейки
 			string arg2 = str.substr(oper_pos + 1, str.length());// получаем второй аргумент выражения
 			cell_2 = parse_arg(&arg2);// получаем значение из ячейки
 			op = oper;
+			break;
 		}
-		break;
 	}
 	return to_string(operation(cell_1, cell_2, op));
 }
@@ -159,16 +160,6 @@ int main(int argc, char* argv[]){
 						equals_indexes.insert(pair<int, int>(i, table[i].size() - 1));
 				}
 			}
-			
-			//size_t comma_amount = count(row.begin(), row.end(), ',');
-			//int comma_count = -1;
-			//while (getline(ss_row, cell, ',')){
-			//	comma_count++;
-			//	if (comma_count != comma_amount)
-			//		cout << cell << ",";
-			//	else
-			//		cout << cell << endl;
-			//}
 		}
 		watch_table();
 		print_table();

@@ -78,7 +78,7 @@ int Parser::parse_arg(string* arg, const string* str){
 					cerr << "Looped cells: " << *str << " and " << table[i_row][i_col] << endl;
 					#ifdef _DEBUG_USE
 					system("pause");
-					#endif
+					#endif;
 					exit(1);
 				}
 				str_already_was = *str;
@@ -91,7 +91,7 @@ int Parser::parse_arg(string* arg, const string* str){
 			cerr << "Can't find cell: " << *arg << endl;
 			#ifdef _DEBUG_USE
 			system("pause");
-			#endif
+			#endif;
 			exit(1);
 		}
 	} else {// если нет букв в column, значит, это просто число
@@ -121,7 +121,7 @@ string Parser::parse_equal(const string* str, const unsigned int row, const unsi
 			cerr << "Division by zero: " << *str << endl;
 			#ifdef _DEBUG_USE
 			system("pause");
-			#endif
+			#endif;
 			exit(1);
 		}
 
@@ -139,15 +139,18 @@ void Parser::watch_table() {
 
 // печать таблицы в консоль
 void Parser::print_table() {
-
+	map<int, string> tmp_map;
 	for (map<string, int>::iterator it = columns.begin(); it != columns.end(); it++){
-		cout << it->first;
-		if (next(it) != columns.end())
+		tmp_map.insert(pair<int, string>(it->second, it->first));
+	}
+
+	for (map<int, string>::iterator it = tmp_map.begin(); it != tmp_map.end(); it++){
+		cout << it->second;
+		if (next(it) != tmp_map.end())
 			cout << ",";
 		else
 			cout << endl;
 	}
-		;
 	for (vector<string> vec : table)
 	for (int i = 0; i < vec.size(); i++){
 			cout << vec[i];
@@ -162,7 +165,7 @@ void Parser::print_table() {
 int main(int argc, char* argv[]){
 
 	#ifdef _DEBUG_USE
-	string filename = "E:/file.csv";
+	string filename = "C:/Users/pizhu/Documents/cpp_proj/csvreader/my_example.csv";
 	#endif
 	#ifdef _CONSOLE_USE
 	string filename = "";
@@ -195,7 +198,7 @@ int main(int argc, char* argv[]){
 						cerr << "First column can't be a string" << endl;
 						#ifdef _DEBUG_USE
 						system("pause");
-						#endif
+						#endif;
 						return 1;
 					}
 					for (char& c : cell){// проверка на содержание цифр в ряде столбцов
@@ -203,7 +206,7 @@ int main(int argc, char* argv[]){
 							cerr << "Column can't contain a number" << endl;
 							#ifdef _DEBUG_USE
 							system("pause");
-							#endif
+							#endif;
 							return 1;
 						}
 					}
@@ -237,7 +240,7 @@ int main(int argc, char* argv[]){
 		p.print_table();
 		#ifdef _DEBUG_USE
 		system("pause");
-		#endif
+		#endif;
 	}
 	
 	return 0;

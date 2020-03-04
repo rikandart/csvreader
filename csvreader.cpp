@@ -78,7 +78,7 @@ int Parser::parse_arg(string* arg, const string* str){
 					cerr << "Looped cells: " << *str << " and " << table[i_row][i_col] << endl;
 					#ifdef _DEBUG_USE
 					system("pause");
-					#endif;
+					#endif
 					exit(1);
 				}
 				str_already_was = *str;
@@ -91,7 +91,7 @@ int Parser::parse_arg(string* arg, const string* str){
 			cerr << "Can't find cell: " << *arg << endl;
 			#ifdef _DEBUG_USE
 			system("pause");
-			#endif;
+			#endif
 			exit(1);
 		}
 	} else {// если нет букв в column, значит, это просто число
@@ -121,7 +121,7 @@ string Parser::parse_equal(const string* str, const unsigned int row, const unsi
 			cerr << "Division by zero: " << *str << endl;
 			#ifdef _DEBUG_USE
 			system("pause");
-			#endif;
+			#endif
 			exit(1);
 		}
 
@@ -198,7 +198,7 @@ int main(int argc, char* argv[]){
 						cerr << "First column can't be a string" << endl;
 						#ifdef _DEBUG_USE
 						system("pause");
-						#endif;
+						#endif
 						return 1;
 					}
 					for (char& c : cell){// проверка на содержание цифр в ряде столбцов
@@ -206,7 +206,7 @@ int main(int argc, char* argv[]){
 							cerr << "Column can't contain a number" << endl;
 							#ifdef _DEBUG_USE
 							system("pause");
-							#endif;
+							#endif
 							return 1;
 						}
 					}
@@ -240,7 +240,7 @@ int main(int argc, char* argv[]){
 		p.print_table();
 		#ifdef _DEBUG_USE
 		system("pause");
-		#endif;
+		#endif
 	}
 	
 	return 0;

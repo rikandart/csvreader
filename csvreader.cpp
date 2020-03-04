@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <vector>
 #include <map>
+#include <exception>
 
 //#define _DEBUG_USE
 #define _CONSOLE_USE
@@ -18,6 +19,7 @@ public:
 		opers_array[1] = '-';
 		opers_array[2] = '*';
 		opers_array[3] = '/';
+		str_already_was = "";
 	};
 	~Parser(){};
 	vector<vector<string>> table;// вектор таблицы
@@ -34,8 +36,9 @@ private:
 	// массив операторов
 	char opers_array[4];
 	int operation(int arg1, int arg2, char oper);
-	int parse_arg(string* arg);
+	int parse_arg(string* arg, const string* str);
 	string parse_equal(const string* str, const unsigned int row, const unsigned int column);
+	string str_already_was;
 };
 
 int Parser::operation(int arg1, int arg2, char oper){
@@ -47,16 +50,17 @@ int Parser::operation(int arg1, int arg2, char oper){
 		case '*':
 			return arg1 * arg2;
 		case '/':
-			return arg1 / arg2;
+				if (arg2 == 0)
+					throw "div by zero";
+				return arg1 / arg2;		
 	}
 }
 
-int Parser::parse_arg(string* arg){
+int Parser::parse_arg(string* arg, const string* str){
 	string column = "";
 	string row = "";
 	if (arg->at(0) == '=')
 		*arg = arg->substr(1, arg->length());// убираем "="
-	const char* arg_c = arg->c_str();
 	for (char &i : *arg){
 		if (!isdigit(i)){
 			column += i;
@@ -65,13 +69,31 @@ int Parser::parse_arg(string* arg){
 		}
 	}
 	if (column != ""){
-		int i_col = columns.find(column)->second;
-		int i_row = rows.find(row)->second;
+		try {
+			int i_col = columns.at(column);
+			int i_row = rows.at(row);
+			if (table[i_row][i_col].at(0) == '='){// если в нужной ячейке лежит выражение
+				// на случай, если в таблице ячейки вызывают друг друга и, следовательно не могут посчитаться, что приводит к stack overflow
+				if (table[i_row][i_col] == str_already_was){
+					cerr << "Looped cells: " << *str << " and " << table[i_row][i_col] << endl;
+					#ifdef _DEBUG_USE
+					system("pause");
+					#endif;
+					exit(1);
+				}
+				str_already_was = *str;
+				table[i_row][i_col] = parse_equal(&table[i_row][i_col], i_row, i_col);
+			}
 
-		if (table[i_row][i_col].at(0) == '=')
-			table[i_row][i_col] = parse_equal(&table[i_row][i_col], i_row, i_col);
-
-		return stoi(table[i_row][i_col]);
+			return stoi(table[i_row][i_col]);
+		}
+		catch (exception &e) {// если не существует такой ячейки или ряда
+			cerr << "Can't find cell: " << *arg << endl;
+			#ifdef _DEBUG_USE
+			system("pause");
+			#endif;
+			exit(1);
+		}
 	} else {// если нет букв в column, значит, это просто число
 		return stoi(row);
 	}
@@ -86,14 +108,23 @@ string Parser::parse_equal(const string* str, const unsigned int row, const unsi
 		int oper_pos = 0;
 		if ((oper_pos = str->find_first_of(oper, 0)) >= 0){
 			string arg1 = str->substr(0, oper_pos);// получаем первый аргумент выражения
-			cell_1 = parse_arg(&arg1);// получаем значение из ячейки
+			cell_1 = parse_arg(&arg1, str);// получаем значение из ячейки
 			string arg2 = str->substr(oper_pos + 1, str->length());// получаем второй аргумент выражения
-			cell_2 = parse_arg(&arg2);// получаем значение из ячейки
+			cell_2 = parse_arg(&arg2, str);// получаем значение из ячейки
 			op = oper;
 			break;
 		}
 	}
-	return to_string(operation(cell_1, cell_2, op));
+	try{
+		return to_string(operation(cell_1, cell_2, op));
+	} catch (const char* e){
+			cerr << "Division by zero: " << *str << endl;
+			#ifdef _DEBUG_USE
+			system("pause");
+			#endif;
+			exit(1);
+		}
+
 }
 
 // перебор ячеек
@@ -101,7 +132,7 @@ void Parser::watch_table() {
 	for (map<int, int>::iterator it = equals_indexes.begin(); it != equals_indexes.end(); it++){
 		unsigned int row = it->first;
 		unsigned int column = it->second;
-		if (table[row][column].at(0) == '=')
+		if (table[row][column].at(0) == '=')// т.к. может быть уже посчитано
 			table[row][column] = parse_equal(&table[row][column], row, column);
 	}
 }
@@ -144,6 +175,7 @@ int main(int argc, char* argv[]){
 	string row = "", cell = "";
 	fstream filehandle(filename.c_str(), ios::in);
 	if (filehandle.is_open()){
+		setlocale(LC_ALL, "Russian");
 		filehandle.seekg(0, ios::end);
 		size_t f_length = filehandle.tellg();
 		filehandle.seekg(0, ios::beg);
@@ -159,6 +191,24 @@ int main(int argc, char* argv[]){
 			if (column_read){
 				int column_i = 0; // считываем номер колонки (столбца) в карту колонок
 				while (getline(ss_row, cell, ',')){
+					if (column_i == 0 && cell != ""){
+						cerr << "First column can't be a string" << endl;
+						#ifdef _DEBUG_USE
+						system("pause");
+						#endif;
+						return 1;
+					}
+					for (char& c : cell){// проверка на содержание цифр в ряде столбцов
+						if (isdigit(c)){
+							cerr << "Column can't contain a number" << endl;
+							#ifdef _DEBUG_USE
+							system("pause");
+							#endif;
+							return 1;
+						}
+					}
+
+					
 					p.columns.insert(pair<string, int>(cell, column_i++));
 				}
 				column_read = false;
@@ -185,7 +235,9 @@ int main(int argc, char* argv[]){
 		}
 		p.watch_table();
 		p.print_table();
+		#ifdef _DEBUG_USE
 		system("pause");
+		#endif;
 	}
 	
 	return 0;
